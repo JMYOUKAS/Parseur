@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # $1 : 1er argument
-
 if [ -z "$1" ]; then
     echo "Il faut passer un dossier en argument"
     exit 1
@@ -28,7 +27,9 @@ done
 for f in $1/CONVERT/*.txt
 do
     nouveau_nom=`echo $f | tr " " "_"`
-    mv -i "$f" $nouveau_nom
+    if [ "$nouveau_nom" != "$f" ]; then
+        mv -i "$f" $nouveau_nom
+    fi
 done
 
 
@@ -50,4 +51,11 @@ do
     echo "Abstract du document"
     abstract=`cat $f | sed -n $debut,$finSansIntroduction'p'`
     echo $abstract
+done
+
+# Récupération du nom d'orgine
+for f in $1/*.pdf
+do
+    filename=$(basename "$f")
+    echo "$filename"
 done
