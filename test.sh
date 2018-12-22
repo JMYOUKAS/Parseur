@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # $1 : 1er argument
+
 if [ -z "$1" ]; then
     echo "Il faut passer un dossier en argument"
     exit 1
@@ -15,47 +16,30 @@ fi
 
 mkdir "$1/CONVERT"
 mkdir "$1/PARSE"
-mkdir "$1/TMP"
 
-for f in $1/*.pdf
+for pdfPath in $1/*.pdf
 do
-    nom=$(basename "$f" .pdf)
-    chemin="$1/CONVERT/$nom.txt"
-    pdftotext "$f" "$chemin"
-done
+    name=$(basename "$pdfPath" .pdf)
+    convertedTxtPath="$1/CONVERT/$name.txt"
+    pdftotext "$pdfPath" "$convertedTxtPath"
 
-for f in $1/CONVERT/*.txt
-do
-    nouveau_nom=`echo $f | tr " " "_"`
-    if [ "$nouveau_nom" != "$f" ]; then
-        mv -i "$f" $nouveau_nom
-    fi
-done
+    echo "$name" >> "$1/PARSE/$name.txt"
 
-
-# RECUPERER L'ABSTRACT
-for f in $1/CONVERT/*.txt
-do
     #Affiche le numero de la ligne de l'Abstract
-    echo "Debut de l'abstract"
-    debut=`cat $f | (grep -n '[aA][bB][sS][tT][rR][aA][cC][tT]' | head -1) | cut -d: -f1`
-    echo $debut
+    # echo "Debut de l'abstract"
+    debut=`cat "$convertedTxtPath" | (grep -n '[aA][bB][sS][tT][rR][aA][cC][tT]' | head -1) | cut -d: -f1`
+    # echo $debut
 
     #Affiche le numero de ligne -1 de Introduction
-    echo "Fin de l'abstract"
-    fin=`cat $f | (grep -n '[iI][nN][tT][rR][oO][dD][uU][cC][tT][iI][oO][nN]' | head -1) | cut -d: -f1`
-    echo $(($fin-1))
+    # echo "Fin de l'abstract"
+    fin=`cat "$convertedTxtPath" | (grep -n '[iI][nN][tT][rR][oO][dD][uU][cC][tT][iI][oO][nN]' | head -1) | cut -d: -f1`
+    # echo $(($fin-1))
     finSansIntroduction=$(($fin-1))
 
 
-    echo "Abstract du document"
-    abstract=`cat $f | sed -n $debut,$finSansIntroduction'p'`
-    echo $abstract
-done
+    # echo "Abstract du document"
+    abstract=`cat "$convertedTxtPath" | sed -n $debut,$finSansIntroduction'p'`
+    # echo $abstract
 
-# Récupération du nom d'orgine
-for f in $1/*.pdf
-do
-    filename=$(basename "$f")
-    echo "$filename"
+    echo "$abstract" >> "$1/PARSE/$name.txt"
 done
