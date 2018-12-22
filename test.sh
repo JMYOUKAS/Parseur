@@ -32,6 +32,55 @@ do
     fi
 done
 
+# Récupération du nom d'orgine
+for f in $1/*.pdf
+do
+    filename=$(basename "$f")
+    echo "$filename"
+done
+
+for f in $1/CONVERT/*.txt
+do
+    titre=""
+    for line in $(cat $f)
+    do
+        #Si la ligne contient une date ou un mail ou vide
+            #Ne rien faire
+        if [ "$line" == *[0-9]* ] ||  [ "$line" == *[www]* ] || [ "$line" == *[@]*  ]; then
+            echo 'Ce n est pas une ligne de titre, il y a des numeros, une adresse web ou mail'
+            if [ $titre == "" ]
+                continue
+            else
+                break
+            fi
+        fi
+        #Aide : if [[$line == *[0-9]* ]] // verifie si ya un chiffre
+        
+        if [ $titre == "" ]; then
+            titre=$line            
+            echo "$titre"
+        else
+            if [ ̀`wc -w "$line"` > 2 ]; then
+                titre=$titre $line
+                echo "$titre"        
+            else
+                break
+            fi
+        fi
+
+        #Sinon 
+            #Si 1er Ligne Alors
+                #On ajoute cette ligne dans le titre
+            #Si ligne qui suis celle du debut titre Alors
+                #On verifie que la ligne possède + de 2 mot, pas de virgule tout les deux mots
+                    #Si OK Alors
+                        #On ajoute cette ligne a la precedente
+                    #Sinon
+                        #Ne rien faire
+            #Si titre terminé alors
+                #Sortir de la boucle
+    done        
+done
 
 # RECUPERER L'ABSTRACT
 for f in $1/CONVERT/*.txt
@@ -53,9 +102,4 @@ do
     echo $abstract
 done
 
-# Récupération du nom d'orgine
-for f in $1/*.pdf
-do
-    filename=$(basename "$f")
-    echo "$filename"
-done
+
