@@ -23,7 +23,8 @@ do
     convertedTxtPath="$1/CONVERT/$name.txt"
     pdftotext "$pdfPath" "$convertedTxtPath"
 
-    echo "Nom du fichier : $name.pdf" >> "$1/PARSE/$name.txt"
+    echo "Nom du fichier :
+    $name.pdf" >> "$1/PARSE/$name.txt"
 
     f="$convertedTxtPath"
 
@@ -40,7 +41,8 @@ do
             else
                 #echo "VOICI LE TITRE COMPLET"
                 #echo "$titre"
-                echo "Titre : $titre" >> "$1/PARSE/$name.txt"
+                echo "Titre :
+    $titre" >> "$1/PARSE/$name.txt"
                 # echo "i2 : $i"
                 break
             fi
@@ -62,7 +64,8 @@ do
                     if test $word -eq 2; then
                         echo "VOICI L E TITRE COMPLET"
                         echo "$titre"
-                        echo "Titre : $titre" >> "$1/PARSE/$name.txt"
+                        echo "Titre :
+    $titre" >> "$1/PARSE/$name.txt"
                         echo "a = $a"
                         break
                     #Sinon               
@@ -97,5 +100,6 @@ do
     abstract=`cat "$convertedTxtPath" | sed -n $debut,$finSansIntroduction'p'`
     # echo $abstract
 
-    echo "Résumé : $abstract" >> "$1/PARSE/$name.txt"
+    echo "Résumé :
+    $abstract" >> "$1/PARSE/$name.txt"
 done
