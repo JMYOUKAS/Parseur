@@ -60,20 +60,22 @@ do
     titre=''
     cat $f | while read line; 
     do
- 
+         #echo "$line"
         if [[ "$line" =~ [0-9] ]] || [[ "$line" =~ 'www' ]] || [[ "$line" =~ '@' ]]; then
             if test -z "$titre"; then
             continue
             else
                 #echo "VOICI LE TITRE COMPLET"
                 #echo "$titre"
+                
                 echo "Titre : 
     $titre
 " >> "$1/PARSE/${originalFilenames[$a]}.txt"
                
-                # echo "i2 : $i"
+
                 break
             fi
+
         else
             #Si le titre est vide
             if test -z "$titre"; then
@@ -90,20 +92,41 @@ do
                     word=`echo "$line" | wc -w`
                     #Si le nombre de mot est égale a 2               
                     if test $word -eq 2; then
-                        echo "VOICI L E TITRE COMPLET"
-                        echo "$titre"
+
+                        
+                        #echo "VOICI L E TITRE COMPLET"
+                        #echo "$titre"
+                        echo "Titre :
+    $titre
+" >> "$1/PARSE/${originalFilenames[$a]}.txt"
+                        #echo "a = $a"
+                        break
+                        
+                    #Sinon
+                    
+                                       
+                    else 
+                        motVirgule=`echo "$line" | cut -d" " -f2`
+                        virgule=`echo ${motVirgule:$((-1))}`
+                        #echo "virgule : $virgule"
+                        
+                        if test `echo $motVirgule | grep ","`; then 
+                            #echo $motVirgule
+                            #echo "VOICI L E TITRE COMPLET"
+                            #echo "$titre"
                         echo "Titre :
     $titre
 " >> "$1/PARSE/${originalFilenames[$a]}.txt"
                         echo "a = $a"
                         break
-                    #Sinon               
-                    else 
-                        #RAJOUTER LA VERIFICATION DES VIRGULES TOUTS LES DEUX MOTS (Juste sur le premier c'est suffisant)
+                        else
+                            #echo "titre = $titre"
+                            titre="$titre $line"
+                        fi
                         #echo "Le titre"
                         #echo "$titre"
                         #echo "$line"
-                        titre="$titre $line"
+                        ##titre="$titre $line"
                         # echo "$titre"
                     fi
                 fi
