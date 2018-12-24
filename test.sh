@@ -46,7 +46,7 @@ do
     $filename
 " > "$1/PARSE/${originalFilenames[$i]}.txt"
     i=$(($i+1))
-    echo "i : $i"
+    
 done
 
 a=-1
@@ -117,7 +117,7 @@ do
                         echo "Titre :
     $titre
 " >> "$1/PARSE/${originalFilenames[$a]}.txt"
-                        echo "a = $a"
+                       
                         break
                         else
                             #echo "titre = $titre"
@@ -144,16 +144,56 @@ do
     #echo "Debut de l'abstract"
     debut=`cat $f | (grep -n '[aA][bB][sS][tT][rR][aA][cC][tT]' | head -1) | cut -d: -f1`
     #echo $debut
-
+    
     #Affiche le numero de ligne -1 de Introduction
     #echo "Fin de l'abstract"
     fin=`cat $f | (grep -n '[iI][nN][tT][rR][oO][dD][uU][cC][tT][iI][oO][nN]' | head -1) | cut -d: -f1`
     #echo $(($fin-1))
-    finSansIntroduction=$(($fin-1))
+    
+     if [[ `cat $f` =~ 'Keywords' ]]; then
+        fin=`cat $f | (grep -n 'Keywords' | head -1) | cut -d: -f1`
+        fin=$(($fin-1))
+        abstract=`cat $f | sed -n $debut,$fin'p' | tr "\n" " " | cut -c10-` 
 
+    elif [[ `cat $f` =~ 'Index Terms' ]]; then
+        fin=`cat $f | (grep -n 'Index Terms' | head -1) | cut -d: -f1`
+        fin=$(($fin-1))
+        abstract=`cat $f | sed -n $debut,$fin'p' | tr "\n" " " | cut -c10-` 
+
+        
+    else
+        #echo $abstract | head -n 22
+        abstract=`cat $f | sed -n $debut,$(($fin-1))'p'` 
+        #echo $abstract
+        newFin=`echo "$abstract" | grep -n ['I\.''1''1\.'] | tail -1`
+        newFinMot=`echo $newFin | grep [':1'':I?'] | cut -d: -f2`
+        newFinLigne=`echo $newFin | grep [':1'':I?'] | cut -d: -f1`
+       # echo $newFin
+        if test `echo $newFinMot | wc -w` -le 2; then
+            
+            fin=$(($newFinLigne-1))   
+        
+                 
+        fi
+        #echo $fin
+        #echo ""
+        abstract=`echo "$abstract" | head -"$fin" | tr "\n" " " | cut -c10-` 
+    fi
+
+   
+   # finSansIntroduction=$(($fin-1))
+    
 
     #echo "Abstract du document"
-    abstract=`cat $f | sed -n $debut,$finSansIntroduction'p' | tr "\n" " " | cut -c10-`
+    #abstract=`cat $f | sed -n $debut,$fin'p'` 
+   
+    # tr "\n" " " | cut -c10-
+   # echo ""
+    #echo $abstract
+
+    
+        
+  
     #echo $abstract
 
     echo "Resumé/Abstract :
