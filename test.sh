@@ -21,16 +21,40 @@ fi
 mkdir "$1/CONVERT"
 mkdir "$1/PARSE"
 
-i=0
+i=1
 
 for f in $1/*.pdf
 do
+    echo "$i) $(basename "$f" .pdf).pdf"
+    files[$i]="$f"
+    i=$(($i+1))
+done
+
+read input
+
+IFS=',' read -r -a array <<< "$input"
+
+i=0
+
+for a in ${array[@]}; do
+    f=${files[$a]}
     nom=$(basename "$f" .pdf)
     chemin="$1/CONVERT/$nom.txt"
     pdftotext "$f" "$chemin"
     originalFilenames[$i]="$nom"
-    i=$i+1
+    i=$(($i+1))
 done
+
+# i=0
+
+# for f in $1/*.pdf
+# do
+#     nom=$(basename "$f" .pdf)
+#     chemin="$1/CONVERT/$nom.txt"
+#     pdftotext "$f" "$chemin"
+#     originalFilenames[$i]="$nom"
+#     i=$i+1
+# done
 
 for f in $1/CONVERT/*.txt
 do
@@ -43,7 +67,7 @@ done
 i=0
 
 # Récupération du nom d'orgine
-for f in $1/*.pdf
+for f in $1/CONVERT/*.txt
 do
     filename=$(basename "$f")
     # echo "$filename"
