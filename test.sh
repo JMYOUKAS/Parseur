@@ -1,7 +1,13 @@
 #!/bin/bash
+
 # $1 : 1er argument
 if [ -z "$1" ]; then
     echo "Il faut passer un dossier en argument"
+    exit 1
+fi
+
+if [ -z "$2" ]; then
+    echo "Il faut donner un format de sortie -t ou -x"
     exit 1
 fi
 
@@ -42,11 +48,17 @@ do
     filename=$(basename "$f")
     # echo "$filename"
     
-    echo "Nom du fichier :
-    $filename
-" > "$1/PARSE/${originalFilenames[$i]}.txt"
-    i=$(($i+1))
-    
+    # Ouverture de la balise article
+    if [ $2 = "-x" ]; then
+        echo "<article>" > "$1/PARSE/${originalFilenames[$i]}.xml"
+    fi
+
+    if [ $2 = "-t" ]; then
+        echo "Nom du fichier :$filename" >> "$1/PARSE/${originalFilenames[$i]}.txt"
+    elif [ $2 = "-x" ]; then
+        echo "<preambule>$filename</preambule>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+    fi
+    i=$(($i+1))    
 done
 
 a=-1
@@ -68,9 +80,13 @@ do
                 #echo "VOICI LE TITRE COMPLET"
                 #echo "$titre"
                 
-                echo "Titre : 
+                if [ $2 = "-t" ]; then
+                    echo "Titre :
     $titre
 " >> "$1/PARSE/${originalFilenames[$a]}.txt"
+                elif [ $2 = "-x" ]; then
+                    echo "<titre>$titre</titre>" >> "$1/PARSE/${originalFilenames[$a]}.xml"
+                fi
                
 
                 break
@@ -96,9 +112,13 @@ do
                         
                         #echo "VOICI L E TITRE COMPLET"
                         #echo "$titre"
-                        echo "Titre :
+                        if [ $2 = "-t" ]; then
+                            echo "Titre :
     $titre
 " >> "$1/PARSE/${originalFilenames[$a]}.txt"
+                        elif [ $2 = "-x" ]; then
+                            echo "<titre>$titre</titre>" >> "$1/PARSE/${originalFilenames[$a]}.xml"
+                        fi
                         #echo "a = $a"
                         break
                         
@@ -114,10 +134,13 @@ do
                             #echo $motVirgule
                             #echo "VOICI L E TITRE COMPLET"
                             #echo "$titre"
-                        echo "Titre :
+                        if [ $2 = "-t" ]; then
+                            echo "Titre :
     $titre
 " >> "$1/PARSE/${originalFilenames[$a]}.txt"
-                       
+                        elif [ $2 = "-x" ]; then
+                            echo "<titre>$titre</titre>" >> "$1/PARSE/${originalFilenames[$a]}.xml"
+                        fi
                         break
                         else
                             #echo "titre = $titre"
@@ -196,11 +219,17 @@ do
   
     #echo $abstract
 
-    echo "Resumé/Abstract :
+    if [ $2 = "-t" ]; then
+        echo "Resumé/Abstract :
     $abstract
 " >> "$1/PARSE/${originalFilenames[$i]}.txt"
+    elif [ $2 = "-x" ]; then
+        echo "<abstract>$abstract</abstract>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+        echo "</article>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+    fi
     i=$(($i+1))
 done
+
 
 
 
@@ -214,4 +243,3 @@ done
         
         #Aide : if [[$line == *[0-9]* ]] // verifie si ya un chiffre
 # -z $line
-     
