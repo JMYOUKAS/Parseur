@@ -249,21 +249,28 @@ do
 " >> "$1/PARSE/${originalFilenames[$i]}.txt"
     elif [ $2 = "-x" ]; then
         echo "<abstract>$abstract</abstract>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
-        echo "</article>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
     fi
     i=$(($i+1))
 done
 
 
+i=0
+# REFERENCE
+for f in $1/CONVERT/*.txt; do
+    debut=`cat $f | (grep -n '[rR][eE][fF][eE][rR][eE][nN][cC][eE][sS]' | head -1) | cut -d: -f1`
+    biblio=`cat $f | tail -n +$debut`
+    if [ $2 = "-t" ]; then
+        echo "Bibliotheque :
+    $biblio
+" >> "$1/PARSE/${originalFilenames[$i]}.txt"
+    elif [ $2 = "-x" ]; then
+        echo "<biblio>$biblio</biblio>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+    fi
+done
 
-
-   # a='amelie'
-   # if [ "$a" == "amelie" ]; then
-   #     echo "true"
-   # fi
-   # [[ "$line" =~ *[0-9]* ]] && echo $line;
-        #Si la ligne contient une date ou un mail ou vide
-            #Ne rien faire
-        
-        #Aide : if [[$line == *[0-9]* ]] // verifie si ya un chiffre
-# -z $line
+i=0
+for f in $1/CONVERT/*.txt; do
+    if [ $2 = "-x" ]; then
+        echo "</article>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+    fi
+done
