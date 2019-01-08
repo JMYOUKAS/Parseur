@@ -254,11 +254,38 @@ do
 done
 
 
+
+i=0
+# CONCLUSION
+for f in $1/CONVERT/*.txt; do
+    debut=`cat $f | (grep -n 'C[oN][nN][cC][lL][uU][sS][iI][oO][nN]' | head -1) | cut -d: -f1`
+    if [[ `cat $f` =~ 'Acknowledgements' ]]; then
+        fin=`cat $f | (grep -n 'Acknowledgement' | head -1) | cut -d: -f1`
+    else
+        fin=`cat $f | (grep -n 'R[eE][fF][eE][rR][eE][nN][cC][eE][sS]' | head -1) | cut -d: -f1`
+    fi
+    conclusion=`cat $f | sed -n $(($debut+1)),$(($fin-1))'p'`
+    
+    # On ecrit dans le fichier
+    if [ $2 = "-t" ]; then
+        echo "Conclusion :
+    $cocnlusion
+" >> "$1/PARSE/${originalFilenames[$i]}.txt"
+    elif [ $2 = "-x" ]; then
+        echo "<conclusion>$conclusion</conclusion>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+    fi
+done
+
+
+
 i=0
 # REFERENCE
 for f in $1/CONVERT/*.txt; do
-    debut=`cat $f | (grep -n '[rR][eE][fF][eE][rR][eE][nN][cC][eE][sS]' | head -1) | cut -d: -f1`
+    debut=`cat $f | (grep -n 'R[eE][fF][eE][rR][eE][nN][cC][eE][sS]' | head -1) | cut -d: -f1`
+    debut=$(($debut+1))
     biblio=`cat $f | tail -n +$debut`
+
+    # On ecrit dans le fichier
     if [ $2 = "-t" ]; then
         echo "Bibliotheque :
     $biblio
@@ -267,6 +294,7 @@ for f in $1/CONVERT/*.txt; do
         echo "<biblio>$biblio</biblio>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
     fi
 done
+
 
 i=0
 for f in $1/CONVERT/*.txt; do
