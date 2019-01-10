@@ -256,6 +256,26 @@ done
 
 
 i=0
+# DISCUSSION
+for f in $1/CONVERT/*.txt; do
+    if [[ `cat $f` =~ 'Discussion' ]]; then
+        debut=`cat $f | (grep -n 'Discussion$' | head -1) | cut -d: -f1` # D[iI][sS][cC][uU][sS][sS][iI][oO][nN]
+        fin=`cat $f | (grep -n 'C[oN][nN][cC][lL][uU][sS][iI][oO][nN]' | head -1) | cut -d: -f1`
+        discussion=`cat $f | sed -n $(($debut+1)),$(($fin-1))'p'`
+        # On ecrit dans le fichier
+        if [ $2 = "-t" ]; then
+            echo "Discussion :
+        $discussion
+    " >> "$1/PARSE/${originalFilenames[$i]}.txt"
+        elif [ $2 = "-x" ]; then
+            echo "<discussion>$discussion</discussion>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+        fi
+    fi
+done
+
+
+
+i=0
 # CONCLUSION
 for f in $1/CONVERT/*.txt; do
     debut=`cat $f | (grep -n 'C[oN][nN][cC][lL][uU][sS][iI][oO][nN]' | head -1) | cut -d: -f1`
@@ -269,7 +289,7 @@ for f in $1/CONVERT/*.txt; do
     # On ecrit dans le fichier
     if [ $2 = "-t" ]; then
         echo "Conclusion :
-    $cocnlusion
+    $conclusion
 " >> "$1/PARSE/${originalFilenames[$i]}.txt"
     elif [ $2 = "-x" ]; then
         echo "<conclusion>$conclusion</conclusion>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
