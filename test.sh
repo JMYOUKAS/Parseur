@@ -327,9 +327,10 @@ done
 
 
 i=0
-# Récupération de l'INTRODUCTION
+# Récupération de l'INTRODUCTION et du CORPS
 for f in $1/CONVERT/*.txt;
 do
+    # INTRODUCTION
     newDebut=0
     debutIntrodution=`cat $f | (grep -n '[iI][nN][tT][rR][oO][dD][uU][cC][tT][iI][oO][nN]' | head -1) | cut -d: -f1`
     # echo "Debut de l'introdution : $debutIntrodution"
@@ -374,9 +375,23 @@ do
     fi
     )
 
-
-    
-
+    # CORPS
+    debut=$finIntroduction
+    test=`cat $f | grep -c 'Discussion$'`
+    if [[ $test != 0 ]]; then
+        fin=`cat $f | (grep -n 'Discussion$' | head -1) | cut -d: -f1` # D[iI][sS][cC][uU][sS][sS][iI][oO][nN]
+    else
+        fin=`cat $f | (grep -n 'C[oN][nN][cC][lL][uU][sS][iI][oO][nN]' | head -1) | cut -d: -f1`
+    fi
+    corps=`cat $f | sed -n $(($debut+1)),$(($fin-1))'p'`
+    # On ecrit dans le fichier
+    if [ $2 = "-t" ]; then
+        echo "Corps :
+    $corps
+    " >> "$1/PARSE/${originalFilenames[$i]}.txt"
+    elif [ $2 = "-x" ]; then
+        echo "<corps>$corps</corps>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+    fi
 
     i=$(($i+1))
 done
