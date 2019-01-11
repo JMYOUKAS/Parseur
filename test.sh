@@ -45,17 +45,6 @@ for a in ${array[@]}; do
     i=$(($i+1))
 done
 
-# i=0
-
-# for f in $1/*.pdf
-# do
-#     nom=$(basename "$f" .pdf)
-#     chemin="$1/CONVERT/$nom.txt"
-#     pdftotext "$f" "$chemin"
-#     originalFilenames[$i]="$nom"
-#     i=$i+1
-# done
-
 for f in $1/CONVERT/*.txt
 do
     nouveau_nom=`echo $f | tr " " "_"`
@@ -90,13 +79,16 @@ a=-1
 # Récupération du titre
 for f in $1/CONVERT/*.txt;
 do
+    cpt=0
     a=`expr $a + 1`
     # echo ''
     # echo "Nouveau document"
     titre=''
-    cat $f | while read line; 
+    cat $f | ( while read line; 
     do
          #echo "$line"
+                cpt=$(($cpt+1))
+
         if [[ "$line" =~ [0-9] ]] || [[ "$line" =~ 'www' ]] || [[ "$line" =~ '@' ]]; then
             if test -z "$titre"; then
             continue
@@ -170,16 +162,94 @@ do
                             #echo "titre = $titre"
                             titre="$titre $line"
                         fi
-                        #echo "Le titre"
-                        #echo "$titre"
-                        #echo "$line"
-                        ##titre="$titre $line"
-                        # echo "$titre"
                     fi
                 fi
             fi
         fi
     done
+
+    debutAuteur=$cpt
+    finAuteur=$((`cat $f | (grep -n '[aA][bB][sS][tT][rR][aA][cC][tT]' | head -1) | cut -d: -f1`-1))
+    nomAuteur=""
+    nomAuteurOK=""
+    bool=1
+    # " ," => "," "and" => ""
+    # premiere occurence de and
+
+
+
+    auteur=`cat "$f" | sed -e 's/and//g' | sed -e 's/ ,/,/g' | sed -n $debutAuteur,$finAuteur'p'`
+    # echo $auteur
+    echo "$auteur" | ( while read line; do
+        # echo $line
+        bool=1
+        nbwords=`echo $line | wc -w`
+        # echo $nbwords
+        if [ $nbwords -eq "1" ] || [ $nbwords -eq "3" ] || [ $nbwords -eq "0" ] || [ `echo $nbwords % 2 |  bc` -eq "1" ] || `echo $line | grep -q '[@\"”]'` || `echo $line | grep -q 'Google'`; then 
+            echo ""
+        else
+            # echo $line
+            wordcount=0
+            for WORD in `echo $line`
+            do
+                wordcount=$(($wordcount+1))
+                # echo "le numero : $wordcount et le mot $WORD"
+                # echo "numero du mot : $wordcount"
+                # Si deuxie
+                # MOT IMPAIRE
+                # if [ `echo $wordcount % 2 |  bc` -eq "1" ]; then
+                if [ $wordcount -eq "1" ]; then
+
+                    #SI MAJUSCULE
+                    # echo "Premier mot"
+                    if `echo "$WORD" | grep -q "^[A-Z]"` &&  `echo "$WORD" | grep -q "[^,]$"`; then
+                        # echo "Premier mot avec MAJUSCULE"
+                        # echo "le mot est : $WORD"
+                        nomAuteur="$nomAuteur $WORD"
+                        # echo "Prenom de l'auteur : $nomAuteur"
+                    else
+                        # echo "IICIIIII"
+                        bool=0
+                        nomAuteur=""
+                    fi
+                fi
+
+                # MOT PAIRE
+                #if [ `echo $wordcount % 2 |  bc` -eq "0" ]; then 
+                if [ $wordcount -eq "2" ]; then
+                    # echo "mot paire : $nomAuteur"
+                    if test -n $nomAuteur && [ $bool -eq 1 ]; then
+                        # echo "CA RENTRE LA ALORSQ QUE CA DEVRAI PAS"
+                        if `echo "$WORD" | grep -q "^[A-Z].*\,$"`; then
+                            nomAuteurOK="$nomAuteurOK $line"
+                            # echo "nom de l'auteur : $nomAuteurOK"
+                            nomAuteur=""
+                            break
+                        elif [ $nbwords -eq "2" ]; then
+                            nomAuteurOK="$nomAuteurOK $line"
+                            # echo "nom de l'auteur : $nomAuteurOK"
+                            nomAuteur=""
+                            break
+                        else
+                            nomAuteur=""
+                        fi
+                    else
+                        # echo "c'est censé etre la"
+                        nomAuteur=""
+                    fi
+                fi
+            done
+        fi 
+    done 
+    if [ $2 = "-t" ]; then
+        echo "Auteurs :
+    $nomAuteurOK
+    " >> "$1/PARSE/${originalFilenames[$a]}.txt"
+    elif [ $2 = "-x" ]; then
+        echo "<author>$nomAuteurOK</author>" >> "$1/PARSE/${originalFilenames[$a]}.xml"
+    fi
+    )
+    )
 done
 
 i=0
@@ -300,12 +370,16 @@ do
     $introdution
 " >> "$1/PARSE/${originalFilenames[$i]}.txt" 
     elif [ $2 = "-x" ]; then
-        echo "<introdution>$introdution</introdution>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+        echo "<introduction>$introdution</introduction>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
     fi
     )
+
+
+    
+
+
     i=$(($i+1))
 done
-
 
 
 
@@ -326,6 +400,7 @@ for f in $1/CONVERT/*.txt; do
             echo "<discussion>$discussion</discussion>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
         fi
     fi
+    i=$(($i+1))
 done
 
 
@@ -349,6 +424,7 @@ for f in $1/CONVERT/*.txt; do
     elif [ $2 = "-x" ]; then
         echo "<conclusion>$conclusion</conclusion>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
     fi
+    i=$(($i+1))
 done
 
 
@@ -368,6 +444,7 @@ for f in $1/CONVERT/*.txt; do
     elif [ $2 = "-x" ]; then
         echo "<biblio>$biblio</biblio>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
     fi
+    i=$(($i+1))
 done
 
 
@@ -376,4 +453,5 @@ for f in $1/CONVERT/*.txt; do
     if [ $2 = "-x" ]; then
         echo "</article>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
     fi
+    i=$(($i+1))
 done
