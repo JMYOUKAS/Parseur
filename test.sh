@@ -259,7 +259,7 @@ i=0
 # DISCUSSION
 for f in $1/CONVERT/*.txt; do
     test=`cat $f | grep -c 'Discussion$'`
-    if [[ $test = 1 ]]; then
+    if [[ $test != 0 ]]; then
         debut=`cat $f | (grep -n 'Discussion$' | head -1) | cut -d: -f1` # D[iI][sS][cC][uU][sS][sS][iI][oO][nN]
         fin=`cat $f | (grep -n 'C[oN][nN][cC][lL][uU][sS][iI][oO][nN]' | head -1) | cut -d: -f1`
         discussion=`cat $f | sed -n $(($debut+1)),$(($fin-1))'p'`
