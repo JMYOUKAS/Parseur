@@ -255,6 +255,60 @@ done
 
 
 
+
+i=0
+# Récupération de l'INTRODUCTION
+for f in $1/CONVERT/*.txt;
+do
+    newDebut=0
+    debutIntrodution=`cat $f | (grep -n '[iI][nN][tT][rR][oO][dD][uU][cC][tT][iI][oO][nN]' | head -1) | cut -d: -f1`
+    # echo "Debut de l'introdution : $debutIntrodution"
+
+    finIntroduction=`cat $f | tail -n +$debutIntrodution | (egrep -n '^2$|^II|^2\. [A-Z]|^II.[A-Z]|^2\.$|^2.[A-Z]|^.?2$' | head -1)`
+    ligneSuivante=$(($debutIntrodution+`echo $finIntroduction | cut -d: -f1`-1))
+    # echo "fin de l'introdution : $finIntroduction"
+
+    finIntroduction=`echo $finIntroduction | cut -d: -f1`
+    finIntroduction=$(($finIntroduction+$debutIntrodution-1))
+
+    (cat $f | tail -n +$ligneSuivante) | (while read line
+    do
+        # echo $line
+        # if test `echo $line | egrep '^2$|^II$'`; then
+            # echo "dans le if"
+            # echo "$line"
+            # echo ''
+
+        # el
+        if test `echo $line | grep '^[a-z]' `; then
+                    # echo "OKOK" 
+                    newDebut=`cat $f | (grep -n "$line" | head -1) | cut -d: -f1`
+                    echo "newDebut = $newDebut"
+                    finIntroduction=`cat $f | tail -n +$newDebut | (egrep -n '^2$|^II|^2\. [A-Z]|^II.[A-Z]|^2\.$|^2.[A-Z]|^.?2$' | head -1)`
+                    echo "fin introdution : $finIntroduction"
+                    finIntroduction=`echo $finIntroduction | cut -d: -f1`
+                    finIntroduction=$(($finIntroduction+$newDebut-1))
+
+                break
+        else
+            break
+        fi
+    done
+    introdution=`cat $f | sed -n $debutIntrodution,$finIntroduction'p' | tr "\n" " "`
+    if [ $2 = "-t" ]; then
+    echo "Introduction :
+    $introdution
+" >> "$1/PARSE/${originalFilenames[$i]}.txt" 
+    elif [ $2 = "-x" ]; then
+        echo "<introdution>$introdution</introdution>" >> "$1/PARSE/${originalFilenames[$i]}.xml"
+    fi
+    )
+    i=$(($i+1))
+done
+
+
+
+
 i=0
 # DISCUSSION
 for f in $1/CONVERT/*.txt; do
