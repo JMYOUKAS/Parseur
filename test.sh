@@ -58,7 +58,8 @@ i=0
 # Récupération du nom d'orgine
 for f in $1/CONVERT/*.txt
 do
-    filename=$(basename "$f")
+    # filename=$(basename "$f")
+    filename="${originalFilenames[$i]}.pdf"
     # echo "$filename"
     
     # Ouverture de la balise article
@@ -186,7 +187,7 @@ do
         nbwords=`echo $line | wc -w`
         # echo $nbwords
         if [ $nbwords -eq "1" ] || [ $nbwords -eq "3" ] || [ $nbwords -eq "0" ] || [ `echo $nbwords % 2 |  bc` -eq "1" ] || `echo $line | grep -q '[@\"”]'` || `echo $line | grep -q 'Google'`; then 
-            echo ""
+            continue
         else
             # echo $line
             wordcount=0
